@@ -23,12 +23,9 @@ namespace ScreenCapture
             {
                 ToolStripMenuItem screenSelect = new ToolStripMenuItem();
                 screenSelect.Text = screen.DeviceName;
-                // screenSelect.Click += 
                 selectScreenToolStripMenuItem.DropDownItems.Add(screenSelect);
 
                 screenSelect.Click += (sender, e) => selectedScreen = screen;
-
-                //screen.Bounds.ToString();
 
             }
 
@@ -58,24 +55,6 @@ namespace ScreenCapture
             {
                 MessageBox.Show(ex.Message);
             }
-
-            /*
-             try
-             {
-                 Bitmap bmp = new Bitmap(Screen.AllScreens[selectedScreen].Bounds.Width, Screen.AllScreens[selectedScreen].Bounds.Height);
-                 using (Graphics g = Graphics.FromImage(bmp))
-                 {
-                     g.CopyFromScreen(Screen.AllScreens[0].Bounds.Width, 0, 0, 0, Screen.AllScreens[1].Bounds.Size);
-                     SetPictureAndCopytoClipboard(bmp);
-                     string key = GenerateKey();
-                     pictures[key] = bmp;
-                     DrawImages();
-                 }
-             }
-             catch (Exception ex)
-             {
-                 MessageBox.Show(ex.Message);
-             }*/
         }
 
         private static string GenerateKey()
