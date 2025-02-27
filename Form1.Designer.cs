@@ -42,18 +42,27 @@
             fileToolStripMenuItem = new ToolStripMenuItem();
             saveAsToolStripMenuItem = new ToolStripMenuItem();
             saveAllToolStripMenuItem = new ToolStripMenuItem();
+            toastToolStripMenuItem = new ToolStripMenuItem();
             selectScreenToolStripMenuItem = new ToolStripMenuItem();
             pictureBox1 = new PictureBox();
             listBox2 = new ListBox();
             button1 = new Button();
             button2 = new Button();
-            toastToolStripMenuItem = new ToolStripMenuItem();
+            autoHourTextBox = new TextBox();
+            autoHourLabel = new Label();
+            autoMinuteLabel = new Label();
+            autoMinuteTextBox = new TextBox();
+            label1 = new Label();
+            autoStartButton = new Button();
+            autoStopButton = new Button();
+            pictureBox2 = new PictureBox();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
             splitContainer1.SuspendLayout();
             menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             SuspendLayout();
             // 
             // imageList1
@@ -88,7 +97,6 @@
             listBox1.Name = "listBox1";
             listBox1.Size = new Size(228, 265);
             listBox1.TabIndex = 5;
-            listBox1.SelectedIndexChanged += listBox1_SelectedIndexChanged;
             // 
             // clearButton
             // 
@@ -100,12 +108,6 @@
             clearButton.TabIndex = 0;
             clearButton.Text = "CLEAR";
             clearButton.UseVisualStyleBackColor = true;
-            clearButton.Click += clearButton_Click;
-            // 
-            // openFileDialog1
-            // 
-            openFileDialog1.FileName = "openFileDialog1";
-            openFileDialog1.FileOk += openFileDialog1_FileOk;
             // 
             // tableLayoutPanel2
             // 
@@ -139,16 +141,22 @@
             // saveAsToolStripMenuItem
             // 
             saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            saveAsToolStripMenuItem.Size = new Size(180, 22);
+            saveAsToolStripMenuItem.Size = new Size(123, 22);
             saveAsToolStripMenuItem.Text = "Save As...";
             saveAsToolStripMenuItem.Click += saveAsToolStripMenuItem_Click;
             // 
             // saveAllToolStripMenuItem
             // 
             saveAllToolStripMenuItem.Name = "saveAllToolStripMenuItem";
-            saveAllToolStripMenuItem.Size = new Size(180, 22);
+            saveAllToolStripMenuItem.Size = new Size(123, 22);
             saveAllToolStripMenuItem.Text = "Save All";
             saveAllToolStripMenuItem.Click += saveAllToolStripMenuItem_Click;
+            // 
+            // toastToolStripMenuItem
+            // 
+            toastToolStripMenuItem.Name = "toastToolStripMenuItem";
+            toastToolStripMenuItem.Size = new Size(123, 22);
+            toastToolStripMenuItem.Text = "Toast";
             // 
             // selectScreenToolStripMenuItem
             // 
@@ -158,9 +166,9 @@
             // 
             // pictureBox1
             // 
-            pictureBox1.Location = new Point(28, 27);
+            pictureBox1.Location = new Point(247, 27);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(529, 259);
+            pictureBox1.Size = new Size(400, 259);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 1;
             pictureBox1.TabStop = false;
@@ -169,9 +177,9 @@
             // 
             listBox2.FormattingEnabled = true;
             listBox2.ItemHeight = 15;
-            listBox2.Location = new Point(572, 27);
+            listBox2.Location = new Point(677, 27);
             listBox2.Name = "listBox2";
-            listBox2.Size = new Size(223, 259);
+            listBox2.Size = new Size(145, 259);
             listBox2.TabIndex = 2;
             listBox2.SelectedIndexChanged += listBox2_SelectedIndexChanged;
             // 
@@ -180,9 +188,9 @@
             button1.BackColor = SystemColors.HotTrack;
             button1.Font = new Font("Segoe UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             button1.ForeColor = SystemColors.ButtonHighlight;
-            button1.Location = new Point(118, 292);
+            button1.Location = new Point(330, 302);
             button1.Name = "button1";
-            button1.Size = new Size(331, 68);
+            button1.Size = new Size(226, 49);
             button1.TabIndex = 3;
             button1.Text = "CAPTURE";
             button1.UseVisualStyleBackColor = false;
@@ -193,32 +201,115 @@
             button2.BackColor = Color.Red;
             button2.Font = new Font("Segoe UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             button2.ForeColor = SystemColors.ButtonHighlight;
-            button2.Location = new Point(572, 302);
+            button2.Location = new Point(677, 302);
             button2.Name = "button2";
-            button2.Size = new Size(223, 49);
+            button2.Size = new Size(145, 49);
             button2.TabIndex = 4;
             button2.Text = "CLEAR";
             button2.UseVisualStyleBackColor = false;
             button2.Click += button2_Click;
             // 
-            // toastToolStripMenuItem
+            // autoHourTextBox
             // 
-            toastToolStripMenuItem.Name = "toastToolStripMenuItem";
-            toastToolStripMenuItem.Size = new Size(180, 22);
-            toastToolStripMenuItem.Text = "Toast";
-
+            autoHourTextBox.Location = new Point(68, 93);
+            autoHourTextBox.Name = "autoHourTextBox";
+            autoHourTextBox.PlaceholderText = "0";
+            autoHourTextBox.Size = new Size(124, 23);
+            autoHourTextBox.TabIndex = 5;
+            autoHourTextBox.Text = "0";
+            // 
+            // autoHourLabel
+            // 
+            autoHourLabel.AutoSize = true;
+            autoHourLabel.Location = new Point(15, 96);
+            autoHourLabel.Name = "autoHourLabel";
+            autoHourLabel.Size = new Size(32, 15);
+            autoHourLabel.TabIndex = 6;
+            autoHourLabel.Text = "hour";
+            // 
+            // autoMinuteLabel
+            // 
+            autoMinuteLabel.AutoSize = true;
+            autoMinuteLabel.Location = new Point(15, 130);
+            autoMinuteLabel.Name = "autoMinuteLabel";
+            autoMinuteLabel.Size = new Size(45, 15);
+            autoMinuteLabel.TabIndex = 8;
+            autoMinuteLabel.Text = "minute";
+            // 
+            // autoMinuteTextBox
+            // 
+            autoMinuteTextBox.Location = new Point(68, 127);
+            autoMinuteTextBox.Name = "autoMinuteTextBox";
+            autoMinuteTextBox.PlaceholderText = "0";
+            autoMinuteTextBox.Size = new Size(124, 23);
+            autoMinuteTextBox.TabIndex = 7;
+            autoMinuteTextBox.Text = "15";
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Font = new Font("Segoe UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label1.Location = new Point(2, 55);
+            label1.Name = "label1";
+            label1.Size = new Size(209, 25);
+            label1.TabIndex = 9;
+            label1.Text = "Auto Capture Settings";
+            // 
+            // autoStartButton
+            // 
+            autoStartButton.BackColor = Color.DarkGreen;
+            autoStartButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            autoStartButton.ForeColor = SystemColors.ButtonHighlight;
+            autoStartButton.Location = new Point(41, 174);
+            autoStartButton.Name = "autoStartButton";
+            autoStartButton.Size = new Size(61, 41);
+            autoStartButton.TabIndex = 10;
+            autoStartButton.Text = "START\r\n";
+            autoStartButton.UseVisualStyleBackColor = false;
+            autoStartButton.Click += autoStartButton_Click;
+            // 
+            // autoStopButton
+            // 
+            autoStopButton.BackColor = Color.Gray;
+            autoStopButton.Enabled = false;
+            autoStopButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            autoStopButton.ForeColor = SystemColors.ButtonHighlight;
+            autoStopButton.Location = new Point(115, 174);
+            autoStopButton.Name = "autoStopButton";
+            autoStopButton.Size = new Size(61, 41);
+            autoStopButton.TabIndex = 11;
+            autoStopButton.Text = "STOP";
+            autoStopButton.UseVisualStyleBackColor = false;
+            autoStopButton.Click += autoStopButton_Click;
+            // 
+            // pictureBox2
+            // 
+            pictureBox2.BackColor = Color.LightGray;
+            pictureBox2.Location = new Point(2, 83);
+            pictureBox2.Name = "pictureBox2";
+            pictureBox2.Size = new Size(216, 153);
+            pictureBox2.TabIndex = 12;
+            pictureBox2.TabStop = false;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSize = true;
-            ClientSize = new Size(834, 411);
+            ClientSize = new Size(834, 361);
+            Controls.Add(autoStopButton);
+            Controls.Add(autoStartButton);
+            Controls.Add(label1);
+            Controls.Add(autoMinuteLabel);
+            Controls.Add(autoMinuteTextBox);
+            Controls.Add(autoHourLabel);
+            Controls.Add(autoHourTextBox);
             Controls.Add(button2);
             Controls.Add(button1);
             Controls.Add(listBox2);
             Controls.Add(pictureBox1);
             Controls.Add(menuStrip1);
+            Controls.Add(pictureBox2);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "Form1";
             StartPosition = FormStartPosition.CenterScreen;
@@ -231,6 +322,7 @@
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -254,5 +346,14 @@
         private Button button2;
         private ToolStripMenuItem selectScreenToolStripMenuItem;
         private ToolStripMenuItem toastToolStripMenuItem;
+        private TextBox autoHourTextBox;
+        private Label autoHourLabel;
+        private Label autoMinuteLabel;
+        private TextBox autoMinuteTextBox;
+        private Label label1;
+        private Button autoStartButton;
+        private Button button3;
+        private Button autoStopButton;
+        private PictureBox pictureBox2;
     }
 }
