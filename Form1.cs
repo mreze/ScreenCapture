@@ -3,6 +3,7 @@ using System.Drawing.Imaging;
 using System.Drawing;
 using System;
 using Timer = System.Windows.Forms.Timer;
+using ScreenCapture.Toast;
 
 
 namespace ScreenCapture
@@ -14,26 +15,46 @@ namespace ScreenCapture
     public partial class Form1 : Form
     {
         Dictionary<string, Bitmap> pictures = new();
+        //List<ToolStripMenuItem> screensToolStrip = new();
         Screen selectedScreen;
         Timer autoCapture = new();
+
+        ToastManager toastManager;
+
         public Form1()
         {
             InitializeComponent();
-            selectedScreen = Screen.AllScreens[0];
+            toastManager = new ToastManager();
+            UpdateScreenSelection(Screen.AllScreens[0]);
+            dateTimePicker1.Format = DateTimePickerFormat.Time;
+            dateTimePicker1.ShowUpDown = true;
+            DrawScheduledCaptures();
 
         }
 
-
         private void Form1_Load(object sender, EventArgs e)
         {
+
+        }
+
+        private void UpdateScreenSelection(Screen selected)
+        {
+            selectScreenToolStripMenuItem.DropDownItems.Clear();
+
+            selectedScreen = selected;
             foreach (Screen screen in Screen.AllScreens)
             {
                 ToolStripMenuItem screenSelect = new ToolStripMenuItem();
                 screenSelect.Text = screen.DeviceName;
                 selectScreenToolStripMenuItem.DropDownItems.Add(screenSelect);
-
-                screenSelect.Click += (sender, e) => selectedScreen = screen;
-
+                if (screen == selected)
+                {
+                    screenSelect.Checked = true;
+                }
+                screenSelect.Click += (sender, e) =>
+                {
+                    UpdateScreenSelection(screen);
+                };
             }
         }
         #region Capture Screen
@@ -44,6 +65,8 @@ namespace ScreenCapture
 
         private void AutoCapture_Tick(object? sender, EventArgs e)
         {
+            autoNextTickLabel.Text = "Next capture: " +
+                DateTime.Now.AddMilliseconds(autoCapture.Interval).ToString("H:mm:ss");
             CaptureScreen();
         }
 
@@ -63,11 +86,11 @@ namespace ScreenCapture
             bmp = new Bitmap(selectedScreen.Bounds.Width, selectedScreen.Bounds.Height);
             try
             {
-                
+
                 using (Graphics g = Graphics.FromImage(bmp))
                 {
                     g.CopyFromScreen(selectedScreen.Bounds.Left, selectedScreen.Bounds.Top, 0, 0, selectedScreen.Bounds.Size);
-                    
+
                 }
                 return true;
             }
@@ -88,8 +111,6 @@ namespace ScreenCapture
         private void pictureBox1_Click(object sender, EventArgs e)
         {
             if (pictureBox1.Image == null) return;
-
-            CopyToClipboard(pictureBox1.Image as Bitmap);
         }
 
 
@@ -132,18 +153,21 @@ namespace ScreenCapture
         private void SetPicture(Bitmap bitmap)
         {
             pictureBox1.Image = bitmap;
-            CopyToClipboard(bitmap);
         }
 
         private void CopyToClipboard(Bitmap bitmap)
         {
             Clipboard.SetImage(bitmap);
-            CreateToast();
+            toastManager.CreateCopyToast();
         }
 
         private void saveAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            SaveAllPictures();
+        }
 
+        private void SaveAllPictures()
+        {
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
                 foreach (KeyValuePair<string, Bitmap> keyValuePair in pictures)
@@ -154,8 +178,13 @@ namespace ScreenCapture
             }
         }
 
-
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveAs();
+
+        }
+
+        private void SaveAs()
         {
             saveFileDialog1 = new SaveFileDialog();
             saveFileDialog1.Filter = "PNG Image|*.png";
@@ -165,7 +194,6 @@ namespace ScreenCapture
             {
                 pictureBox1.Image.Save(saveFileDialog1.FileName);
             }
-
         }
 
         private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
@@ -182,20 +210,14 @@ namespace ScreenCapture
             pictureBox1.Image = null;
             DrawSavedImageList();
         }
-        
-
-        private static void CreateToast()
-        {
-            ToastMessage toast = new ToastMessage();
-            toast.Show();
-            toast.Position(Cursor.Position.X, Cursor.Position.Y);
-        }
 
         private void StartAutoCapture(int tickTime)
         {
             autoCapture = new Timer();
             autoCapture.Interval = tickTime;
             autoCapture.Tick += AutoCapture_Tick;
+            autoNextTickLabel.Text = "Next capture: " +
+                DateTime.Now.AddMilliseconds(tickTime).ToString("H:mm:ss");
             autoCapture.Start();
         }
 
@@ -206,9 +228,12 @@ namespace ScreenCapture
 
             autoStartButton.BackColor = Color.DarkGreen;
             autoStopButton.BackColor = Color.Gray;
-                   
+
             autoMinuteTextBox.Enabled = true;
             autoHourTextBox.Enabled = true;
+
+            autoNextTickLabel.Text = "";
+
             autoCapture.Stop();
         }
 
@@ -227,7 +252,7 @@ namespace ScreenCapture
                 autoMinuteTextBox.Enabled = false;
                 autoHourTextBox.Enabled = false;
                 StartAutoCapture(tickTime);
-            }  
+            }
         }
 
         private bool TryConvertToMilliSeconds(out int milliseconds)
@@ -255,9 +280,58 @@ namespace ScreenCapture
             }
             return true;
         }
+
         private void autoStopButton_Click(object sender, EventArgs e)
         {
             StopAutoCapture();
+        }
+        List<Timer> scheduledTimers = new();
+        Dictionary<Timer, DateTime> timers = new Dictionary<Timer, DateTime>();
+        private void scheduleButton_Click(object sender, EventArgs e)
+        {
+            Timer timer = new Timer();
+            double interval = (dateTimePicker1.Value - DateTime.Now).TotalMilliseconds;
+            if(interval < 0)
+            {
+                //Do we just automatically take a picture and move on with our life or do we throw an error?
+                CaptureScreen();
+                return;
+            }
+            timer.Interval = (int)interval;
+           
+            timer.Start();
+            AddScheduledCapture(timer, dateTimePicker1.Value);
+            timer.Tick += (sender, e) =>
+            {
+                CaptureScreen();
+                timer.Stop();
+                RemoveScheduledTimer(timer);
+            };
+        }
+
+        private void RemoveScheduledTimer(Timer timer)
+        {
+            scheduledTimers.Remove(timer);
+            timers.Remove(timer);
+            timer.Dispose();
+            DrawScheduledCaptures();
+        }
+
+        private void AddScheduledCapture(Timer timer, DateTime value)
+        {
+            scheduledTimers.Add(timer);
+            timers.Add(timer, value);
+            DrawScheduledCaptures();
+        }
+
+        private void DrawScheduledCaptures()
+        {
+            scheduledCapturesListBox.Items.Clear();
+            
+            foreach (Timer timer in scheduledTimers)
+            {
+                scheduledCapturesListBox.Items.Add(timers[timer].ToString("hh:mm:ss"));
+            }
         }
     }
 }

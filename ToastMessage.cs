@@ -25,30 +25,44 @@ namespace ScreenCapture
             timerDestroy.Start();
             timerDestroy.Tick += Timer_Tick;
 
-            timerMover = new Timer();
-            timerMover.Interval = 10;
-            timerMover.Start();
-            timerMover.Tick += Mover_Tick;
+
         }
+
+        private void ToastMessage_Load(object sender, EventArgs e)
+        {
+
+        }
+        
 
         private void Mover_Tick(object? sender, EventArgs e)
         {
-            yPos -= 5;
-            this.Location = new Point(xPos, yPos);
+          
         }
 
         private void Timer_Tick(object? sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
 
-        public void Position(int x, int y)
+        public void SetMainText(string text)
         {
-            this.Location = new Point(x, y);
-            yPos = y;
-            xPos = x;
+            mainText.Text = text;
         }
 
+        public void SetSubtext(string text)
+        {
+            subText.Text = text;
+        }
+
+        public void SetColor(Color color)
+        {
+            panelColor.BackColor = color;
+        }
+
+        public void SetPosition(Point position)
+        {
+            Location = position;
+        }
 
     }
 }

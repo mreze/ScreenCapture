@@ -56,6 +56,11 @@
             autoStartButton = new Button();
             autoStopButton = new Button();
             pictureBox2 = new PictureBox();
+            autoNextTickLabel = new Label();
+            dateTimePicker1 = new DateTimePicker();
+            scheduleButton = new Button();
+            scheduledCapturesListBox = new ListBox();
+            label2 = new Label();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -211,7 +216,7 @@
             // 
             // autoHourTextBox
             // 
-            autoHourTextBox.Location = new Point(68, 93);
+            autoHourTextBox.Location = new Point(69, 62);
             autoHourTextBox.Name = "autoHourTextBox";
             autoHourTextBox.PlaceholderText = "0";
             autoHourTextBox.Size = new Size(124, 23);
@@ -221,7 +226,7 @@
             // autoHourLabel
             // 
             autoHourLabel.AutoSize = true;
-            autoHourLabel.Location = new Point(15, 96);
+            autoHourLabel.Location = new Point(16, 65);
             autoHourLabel.Name = "autoHourLabel";
             autoHourLabel.Size = new Size(32, 15);
             autoHourLabel.TabIndex = 6;
@@ -230,7 +235,7 @@
             // autoMinuteLabel
             // 
             autoMinuteLabel.AutoSize = true;
-            autoMinuteLabel.Location = new Point(15, 130);
+            autoMinuteLabel.Location = new Point(16, 99);
             autoMinuteLabel.Name = "autoMinuteLabel";
             autoMinuteLabel.Size = new Size(45, 15);
             autoMinuteLabel.TabIndex = 8;
@@ -238,7 +243,7 @@
             // 
             // autoMinuteTextBox
             // 
-            autoMinuteTextBox.Location = new Point(68, 127);
+            autoMinuteTextBox.Location = new Point(69, 96);
             autoMinuteTextBox.Name = "autoMinuteTextBox";
             autoMinuteTextBox.PlaceholderText = "0";
             autoMinuteTextBox.Size = new Size(124, 23);
@@ -249,7 +254,7 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label1.Location = new Point(2, 55);
+            label1.Location = new Point(2, 27);
             label1.Name = "label1";
             label1.Size = new Size(209, 25);
             label1.TabIndex = 9;
@@ -260,7 +265,7 @@
             autoStartButton.BackColor = Color.DarkGreen;
             autoStartButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             autoStartButton.ForeColor = SystemColors.ButtonHighlight;
-            autoStartButton.Location = new Point(41, 174);
+            autoStartButton.Location = new Point(39, 125);
             autoStartButton.Name = "autoStartButton";
             autoStartButton.Size = new Size(61, 41);
             autoStartButton.TabIndex = 10;
@@ -274,7 +279,7 @@
             autoStopButton.Enabled = false;
             autoStopButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             autoStopButton.ForeColor = SystemColors.ButtonHighlight;
-            autoStopButton.Location = new Point(115, 174);
+            autoStopButton.Location = new Point(116, 125);
             autoStopButton.Name = "autoStopButton";
             autoStopButton.Size = new Size(61, 41);
             autoStopButton.TabIndex = 11;
@@ -285,11 +290,56 @@
             // pictureBox2
             // 
             pictureBox2.BackColor = Color.LightGray;
-            pictureBox2.Location = new Point(2, 83);
+            pictureBox2.Location = new Point(3, 52);
             pictureBox2.Name = "pictureBox2";
-            pictureBox2.Size = new Size(216, 153);
+            pictureBox2.Size = new Size(216, 114);
             pictureBox2.TabIndex = 12;
             pictureBox2.TabStop = false;
+            // 
+            // autoNextTickLabel
+            // 
+            autoNextTickLabel.AutoSize = true;
+            autoNextTickLabel.Location = new Point(15, 238);
+            autoNextTickLabel.Name = "autoNextTickLabel";
+            autoNextTickLabel.Size = new Size(0, 15);
+            autoNextTickLabel.TabIndex = 13;
+            // 
+            // dateTimePicker1
+            // 
+            dateTimePicker1.Format = DateTimePickerFormat.Time;
+            dateTimePicker1.Location = new Point(11, 212);
+            dateTimePicker1.Name = "dateTimePicker1";
+            dateTimePicker1.Size = new Size(200, 23);
+            dateTimePicker1.TabIndex = 14;
+            // 
+            // scheduleButton
+            // 
+            scheduleButton.Location = new Point(136, 238);
+            scheduleButton.Name = "scheduleButton";
+            scheduleButton.Size = new Size(75, 23);
+            scheduleButton.TabIndex = 15;
+            scheduleButton.Text = "Schedule";
+            scheduleButton.UseVisualStyleBackColor = true;
+            scheduleButton.Click += scheduleButton_Click;
+            // 
+            // scheduledCapturesListBox
+            // 
+            scheduledCapturesListBox.FormattingEnabled = true;
+            scheduledCapturesListBox.ItemHeight = 15;
+            scheduledCapturesListBox.Location = new Point(11, 272);
+            scheduledCapturesListBox.Name = "scheduledCapturesListBox";
+            scheduledCapturesListBox.Size = new Size(200, 79);
+            scheduledCapturesListBox.TabIndex = 16;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Font = new Font("Segoe UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label2.Location = new Point(3, 184);
+            label2.Name = "label2";
+            label2.Size = new Size(168, 25);
+            label2.TabIndex = 17;
+            label2.Text = "Schedule Capture";
             // 
             // Form1
             // 
@@ -297,6 +347,11 @@
             AutoScaleMode = AutoScaleMode.Font;
             AutoSize = true;
             ClientSize = new Size(834, 361);
+            Controls.Add(label2);
+            Controls.Add(scheduledCapturesListBox);
+            Controls.Add(scheduleButton);
+            Controls.Add(dateTimePicker1);
+            Controls.Add(autoNextTickLabel);
             Controls.Add(autoStopButton);
             Controls.Add(autoStartButton);
             Controls.Add(label1);
@@ -355,5 +410,11 @@
         private Button button3;
         private Button autoStopButton;
         private PictureBox pictureBox2;
+        private Label autoNextTickLabel;
+        private ToolStripComboBox testToolStripMenuItem;
+        private DateTimePicker dateTimePicker1;
+        private Button scheduleButton;
+        private ListBox scheduledCapturesListBox;
+        private Label label2;
     }
 }
