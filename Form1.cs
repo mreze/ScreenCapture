@@ -4,37 +4,65 @@ using System.Drawing;
 using System;
 using Timer = System.Windows.Forms.Timer;
 using ScreenCapture.Toast;
+using ScreenCapture.Data;
+using ScreenCapture.Scheduling;
 
 
 namespace ScreenCapture
 {
-    /*TODO:
-     * Autocapture every X Minutes
-     * Refactor Code
-     */
     public partial class Form1 : Form
     {
-        Dictionary<string, Bitmap> pictures = new();
-        //List<ToolStripMenuItem> screensToolStrip = new();
+        IPictureList pictureList;
+        EventScheduler eventScheduler;
+        
         Screen selectedScreen;
         Timer autoCapture = new();
 
         ToastManager toastManager;
+        ContextMenuStrip pictureListContextMenu;
+
 
         public Form1()
         {
             InitializeComponent();
+            pictureList = new PictureList();
             toastManager = new ToastManager();
-            UpdateScreenSelection(Screen.AllScreens[0]);
-            dateTimePicker1.Format = DateTimePickerFormat.Time;
-            dateTimePicker1.ShowUpDown = true;
-            DrawScheduledCaptures();
+            eventScheduler = new EventScheduler();
 
+            UpdateScreenSelection(Screen.AllScreens[0]);
+            
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            dateTimePicker1.Format = DateTimePickerFormat.Time;
+            dateTimePicker1.ShowUpDown = true;
+            DrawScheduledCaptures();
+            UpdateMenuOptions();
 
+            pictureListContextMenu = new ContextMenuStrip();
+            pictureListContextMenu.Opening += PictureListContextMenu_Opening;
+
+            listBox2.ContextMenuStrip = pictureListContextMenu;
+        }
+
+        private void PictureListContextMenu_Opening(object? sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if(listBox2.SelectedItem == null) { pictureListContextMenu.Hide(); return; }
+            pictureListContextMenu?.Items.Clear();
+            var menuItem = new ToolStripMenuItem();
+            menuItem.Text = "Rename file";
+
+            menuItem.Click += (sender, e) =>
+            {
+                //to do: create a rename option...
+                pictureList.GetPictureByName(listBox2.SelectedItem.ToString()).Rename("Renamed Picture");
+                DrawSavedImageList();
+                //redraw on completion
+            };
+            pictureListContextMenu.Items
+                .Add(menuItem);
+            
         }
 
         private void UpdateScreenSelection(Screen selected)
@@ -77,7 +105,8 @@ namespace ScreenCapture
                 SetPicture(bmp);
                 CopyToClipboard(bmp);
                 string key = GenerateKey();
-                pictures[key] = bmp;
+                Picture newPicture = new(key, bmp, Guid.NewGuid().ToString());
+                pictureList.AddPicture(newPicture);
                 DrawSavedImageList();
             }
         }
@@ -107,20 +136,13 @@ namespace ScreenCapture
             return DateTime.Now.ToString("H:mm:ss");//Guid.NewGuid().ToString();
         }
 
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-            if (pictureBox1.Image == null) return;
-        }
-
-
         private void DrawSavedImageList()
         {
             listBox2.Items.Clear();
             UpdateMenuOptions();
-            foreach (KeyValuePair<string, Bitmap> keyValuePair in pictures)
+            foreach (Picture picture in pictureList.GetAllPictures())
             {
-                listBox2.Items.Add(keyValuePair.Key);
+                listBox2.Items.Add(picture.Name);
             }
 
         }
@@ -139,7 +161,7 @@ namespace ScreenCapture
                 saveAsToolStripMenuItem.Enabled = true;
             }
 
-            if (pictures.Count > 0)
+            if (pictureList.PictureCount() > 0)
             {
                 saveAllToolStripMenuItem.Enabled = true;
             }
@@ -153,8 +175,15 @@ namespace ScreenCapture
         private void SetPicture(Bitmap bitmap)
         {
             pictureBox1.Image = bitmap;
+            UpdateMenuOptions();
         }
 
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            if (pictureBox1.Image == null) return;
+
+            CopyToClipboard(pictureBox1.Image as Bitmap);
+        }
         private void CopyToClipboard(Bitmap bitmap)
         {
             Clipboard.SetImage(bitmap);
@@ -170,22 +199,27 @@ namespace ScreenCapture
         {
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
-                foreach (KeyValuePair<string, Bitmap> keyValuePair in pictures)
+                foreach (Picture picture in pictureList.GetAllPictures())
                 {
-                    string fileName = keyValuePair.Key.Replace(":", "_") + ".png";
-                    keyValuePair.Value.Save(Path.Combine(folderBrowserDialog1.SelectedPath, fileName));
+                    string fileName = CleanFileName(picture.Name);
+                    picture.Image.Save(Path.Combine(folderBrowserDialog1.SelectedPath, fileName));
                 }
             }
+        }
+
+        private static string CleanFileName(string fileName)
+        {
+            return fileName.Replace(":", "_") + ".png";
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SaveAs();
-
         }
 
         private void SaveAs()
         {
+            if (pictureBox1.Image == null) return;
             saveFileDialog1 = new SaveFileDialog();
             saveFileDialog1.Filter = "PNG Image|*.png";
             saveFileDialog1.Title = "Save Image As...";
@@ -199,13 +233,20 @@ namespace ScreenCapture
         private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (listBox2.SelectedItem == null) return;
-            Bitmap bitmap = pictures[listBox2.SelectedItem as string];
+            
+            string pictureName = listBox2.SelectedItem.ToString();
+            if (pictureName == null) return;
+            if(!pictureList.ContainsPictureByName(pictureName)) return;
+
+            Picture picture = pictureList.GetPictureByName(pictureName);
+            Bitmap bitmap = picture.Image;
             SetPicture(bitmap);
+            CopyToClipboard(bitmap);
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            pictures.Clear();
+            pictureList.Clear();
             saveAllToolStripMenuItem.Enabled = false;
             pictureBox1.Image = null;
             DrawSavedImageList();
@@ -285,53 +326,42 @@ namespace ScreenCapture
         {
             StopAutoCapture();
         }
-        List<Timer> scheduledTimers = new();
-        Dictionary<Timer, DateTime> timers = new Dictionary<Timer, DateTime>();
+      
         private void scheduleButton_Click(object sender, EventArgs e)
         {
-            Timer timer = new Timer();
-            double interval = (dateTimePicker1.Value - DateTime.Now).TotalMilliseconds;
-            if(interval < 0)
-            {
-                //Do we just automatically take a picture and move on with our life or do we throw an error?
-                CaptureScreen();
-                return;
-            }
-            timer.Interval = (int)interval;
-           
-            timer.Start();
-            AddScheduledCapture(timer, dateTimePicker1.Value);
-            timer.Tick += (sender, e) =>
+            
+            DateTime target = dateTimePicker1.Value;
+            eventScheduler.ScheduleEvent(target, () =>
             {
                 CaptureScreen();
-                timer.Stop();
-                RemoveScheduledTimer(timer);
-            };
+                DrawScheduledCaptures();
+            });
+            DrawScheduledCaptures();
+            
         }
 
         private void RemoveScheduledTimer(Timer timer)
         {
-            scheduledTimers.Remove(timer);
-            timers.Remove(timer);
-            timer.Dispose();
+           
             DrawScheduledCaptures();
         }
 
-        private void AddScheduledCapture(Timer timer, DateTime value)
+        private void AddScheduledCapture(Timer timer, string value)
         {
-            scheduledTimers.Add(timer);
-            timers.Add(timer, value);
+            
             DrawScheduledCaptures();
         }
 
         private void DrawScheduledCaptures()
         {
             scheduledCapturesListBox.Items.Clear();
-            
-            foreach (Timer timer in scheduledTimers)
+
+            foreach (string timer in eventScheduler.GetTimes())
             {
-                scheduledCapturesListBox.Items.Add(timers[timer].ToString("hh:mm:ss"));
+                scheduledCapturesListBox.Items.Add(timer);
             }
         }
+
+
     }
 }

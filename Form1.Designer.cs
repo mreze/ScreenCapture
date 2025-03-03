@@ -42,7 +42,6 @@
             fileToolStripMenuItem = new ToolStripMenuItem();
             saveAsToolStripMenuItem = new ToolStripMenuItem();
             saveAllToolStripMenuItem = new ToolStripMenuItem();
-            toastToolStripMenuItem = new ToolStripMenuItem();
             selectScreenToolStripMenuItem = new ToolStripMenuItem();
             pictureBox1 = new PictureBox();
             listBox2 = new ListBox();
@@ -138,7 +137,7 @@
             // 
             // fileToolStripMenuItem
             // 
-            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { saveAsToolStripMenuItem, saveAllToolStripMenuItem, toastToolStripMenuItem });
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { saveAsToolStripMenuItem, saveAllToolStripMenuItem });
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             fileToolStripMenuItem.Size = new Size(37, 20);
             fileToolStripMenuItem.Text = "File";
@@ -157,12 +156,6 @@
             saveAllToolStripMenuItem.Text = "Save All";
             saveAllToolStripMenuItem.Click += saveAllToolStripMenuItem_Click;
             // 
-            // toastToolStripMenuItem
-            // 
-            toastToolStripMenuItem.Name = "toastToolStripMenuItem";
-            toastToolStripMenuItem.Size = new Size(123, 22);
-            toastToolStripMenuItem.Text = "Toast";
-            // 
             // selectScreenToolStripMenuItem
             // 
             selectScreenToolStripMenuItem.Name = "selectScreenToolStripMenuItem";
@@ -177,6 +170,7 @@
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 1;
             pictureBox1.TabStop = false;
+            pictureBox1.Click += pictureBox1_Click;
             // 
             // listBox2
             // 
@@ -292,14 +286,14 @@
             pictureBox2.BackColor = Color.LightGray;
             pictureBox2.Location = new Point(3, 52);
             pictureBox2.Name = "pictureBox2";
-            pictureBox2.Size = new Size(216, 114);
+            pictureBox2.Size = new Size(216, 137);
             pictureBox2.TabIndex = 12;
             pictureBox2.TabStop = false;
             // 
             // autoNextTickLabel
             // 
             autoNextTickLabel.AutoSize = true;
-            autoNextTickLabel.Location = new Point(15, 238);
+            autoNextTickLabel.Location = new Point(16, 166);
             autoNextTickLabel.Name = "autoNextTickLabel";
             autoNextTickLabel.Size = new Size(0, 15);
             autoNextTickLabel.TabIndex = 13;
@@ -307,14 +301,14 @@
             // dateTimePicker1
             // 
             dateTimePicker1.Format = DateTimePickerFormat.Time;
-            dateTimePicker1.Location = new Point(11, 212);
+            dateTimePicker1.Location = new Point(7, 218);
             dateTimePicker1.Name = "dateTimePicker1";
             dateTimePicker1.Size = new Size(200, 23);
             dateTimePicker1.TabIndex = 14;
             // 
             // scheduleButton
             // 
-            scheduleButton.Location = new Point(136, 238);
+            scheduleButton.Location = new Point(136, 243);
             scheduleButton.Name = "scheduleButton";
             scheduleButton.Size = new Size(75, 23);
             scheduleButton.TabIndex = 15;
@@ -335,7 +329,7 @@
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Segoe UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label2.Location = new Point(3, 184);
+            label2.Location = new Point(7, 190);
             label2.Name = "label2";
             label2.Size = new Size(168, 25);
             label2.TabIndex = 17;
@@ -400,7 +394,6 @@
         private Button button1;
         private Button button2;
         private ToolStripMenuItem selectScreenToolStripMenuItem;
-        private ToolStripMenuItem toastToolStripMenuItem;
         private TextBox autoHourTextBox;
         private Label autoHourLabel;
         private Label autoMinuteLabel;
